@@ -6,6 +6,8 @@ import Modal from 'react-bootstrap/Modal';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import axios from 'axios';
+import { ToastContainer, toast} from "react-toastify";
 
 
 const CRUD = () => {
@@ -49,8 +51,25 @@ const CRUD = () => {
     const [data, setData]  = useState([]); 
 
 
+
+
+    const getData = () =>  {
+        axios.get('https://localhost:7141/api/Employee')
+        .then((result) => {
+            setData(result.data)
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+
+
+
+
+    }
+
+
     useState(()=> {
-        setData(empdata);
+        getData();
     },[])
 
     const handleEdit = (id) =>{
@@ -66,6 +85,34 @@ const CRUD = () => {
 
     }
 
+    const handleSave = () => {
+        const url = 'https://localhost:7141/api/Employee';
+        const data = {
+            "name" : name,
+            "age" : age,
+            "isActive" : isActive
+        }
+        
+        axios.post(url, data)
+        .then((result) => {
+            getData();
+            clear();
+            toast.success('Employee has been added');
+
+        })
+
+    }
+
+    const clear = () => {
+        setName('');
+        setAge('');
+        setIsActive(0);
+
+        setEditName('');
+        setEditAge('');
+        setEditIsActive(0);
+        setEditId('');
+    }
 
     const handleDelete= (id) =>{
         if(window.confirm("Are you sure to delete this employee")  == true){
@@ -75,10 +122,32 @@ const CRUD = () => {
     }
 
 
+    const handleActiveChange= (e) => {
+        if(e.target.checked){
+            setIsActive(1);
+        } else{
+            setIsActive(0);
+        }
+
+    }
+
+
+    const handleEditActiveChange= (e) => {
+        if(e.target.checked){
+            setEditIsActive(1);
+        } else{
+            setEditIsActive(0);
+        }
+
+    }
+
+
+
+
     return(
         <Fragment>
 
-
+            <ToastContainer/>
 
 
                 <Container>
@@ -91,7 +160,7 @@ const CRUD = () => {
                     <input type="text" className="form-control" placeholder="Enter Age" value={age}  onChange={(e) => setAge(e.target.value) } />
                     </Col>
                     <Col>
-                    <input type="checkbox" checked={isActive ===1 ? true : false} onChange={(e) => handleEdit(e)  }    value = {isActive}  />
+                    <input type="checkbox" checked={isActive ===1 ? true : false} onChange={(e) => handleActiveChange(e)  }    value = {isActive}  />
                     <label>IsActive</label>
                     </Col>  
 
@@ -165,13 +234,13 @@ const CRUD = () => {
                     <input type="text" className="form-control" placeholder="Enter Age" value={editAge}  onChange={(e) => setEditAge(e.target.value) } />
                     </Col>
                     <Col>
-                    <input type="checkbox" checked={editIsActive ===1 ? true : false} onChange={(e) => setIsActive(e)  }    value = {setEditIsActive}  />
+                    <input type="checkbox" checked={editIsActive ===1 ? true : false} onChange={(e) => handleActiveChange(e)  }    value = {setEditIsActive}  />
                     <label>IsActive</label>
                     </Col>  
 
 
                     <Col>
-                        <button className="btn btn-primary">Submit</button>
+                        <button className="btn btn-primary" onClick={() => handleSave()}>Submit</button>
                     </Col>
                     
 
